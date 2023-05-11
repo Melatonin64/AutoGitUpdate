@@ -16,6 +16,7 @@ import Logger from 'chegs-simple-logger';
  * @property {Logger.Options} logConfig - An object with the logging configuration, see https://github.com/chegele/Logger
  * @property {String} tempLocation - The local dir to save temporary information for Auto Git Update.
  * @property {Array[String]} ignoreFiles - An array of files to not install when updating. Useful for config files. 
+ * @property {String} pkgManager - The package manager to use when installing dependencies (i.e. npm, yarn). Defaults to "npm". 
  * @property {String} executeOnComplete - A command to execute after an update completes. Good for restarting the app.
  * @property {Boolean} exitOnComplete - Use process exit to stop the app after a successful update.
  */
@@ -56,6 +57,9 @@ export default class AutoGitUpdate {
         
         // Update the logger configuration if provided.
         if (updateConfig.logConfig) this.setLogConfig(updateConfig.logConfig);
+
+        // Apply default values
+        updateConfig.pkgManager = updateConfig.pkgManager || 'npm';
 
         // Update config and retrieve current tag if configured to use releases
         config = updateConfig;
@@ -184,7 +188,7 @@ async function downloadUpdate() {
 }
 
 /**
- * Runs npm install to update/install application dependencies.
+ * Runs npm/yarn install to update/install application dependencies.
  */
 function installDependencies() {
     return new Promise(function(resolve, reject) {
@@ -192,12 +196,12 @@ function installDependencies() {
         let destination = testing ? path.join(appRootPath.path, '/testing/'): appRootPath.path;
         log.detail('Auto Git Update - Installing application dependencies in ' + destination);
         // Generate and execute command
-        let command = `cd ${destination} && npm install`;
+        let command = `cd ${destination} && ${config.pkgManager} install`;
         let child = exec(command);
 
         // Wait for results
         child.stdout.on('end', resolve);
-        child.stdout.on('data', data => log.general('Auto Git Update - npm install: ' + data.replace(/\r?\n|\r/g, '')));
+        child.stdout.on('data', data => log.general(`Auto Git Update - ${config.pkgManager} install: ${data.replace(/\r?\n|\r/g, '')}`));
         child.stderr.on('data', data => {
             if (data.toLowerCase().includes('error')) {
                 // npm passes warnings as errors, only reject if "error" is included

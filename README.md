@@ -20,6 +20,7 @@ a node.js module used for automatically updating projects from a git repository.
  - **branch** *String* - [optional] The branch to update from. Defaults to master.
  - **token** *String* - [optional] A personal access token used for accessions private repositories. 
  - **ignoreFiles** *Array[String]* - [optional] An array of files to not install when updating. Useful for config files. 
+ - **pkgManager** *String* - [optional] The package manager to use when installing dependencies (i.e. `npm`, `yarn`). Defaults to `"npm"`. 
  - **executeOnComplete** *String* - [optional] A command to execute after an update completes. Good for restarting the app.
  - **exitOnComplete** *Boolean* - [optional] Use process exit to stop the app after a successful update.
  - **logConfig** *Object* - [optional] An object with the logging configuration, see https://github.com/chegele/Logger
